@@ -1,7 +1,15 @@
+export const AUTH = "/auth"
 const APPLICATIONS = "/applications"
 const VACANCIES = "/vacancies"
 
 export const ENDPOINTS = {
+  auth: {
+    register: `${AUTH}/register`,
+    login: `${AUTH}/login`,
+    google: `${AUTH}/google`,
+    logout: `${AUTH}/logout`,
+    me: `${AUTH}/me`,
+  },
   applications: {
     root: APPLICATIONS,
     board: `${APPLICATIONS}/board`,

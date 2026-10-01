@@ -15,3 +15,17 @@ export interface ListParams {
   desc?: boolean
   q?: string
 }
+
+export type ApiErrorCode =
+  | "validation_failed"
+  | "unauthorized"
+  | "forbidden"
+  | "not_found"
+  | "conflict"
+  | "internal_error"
+  | "network_error"
+
+export interface ApiErrorBody {
+  error: ApiErrorCode
+  message: string
+}
