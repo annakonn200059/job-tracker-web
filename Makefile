@@ -17,7 +17,10 @@ image-landing:
 images: image-web image-landing
 
 run-web:
-	docker run --rm -p 3000:3000 --env-file apps/web/.env job-tracker-web:$(TAG)
+		docker run --rm -p 3000:3000 \
+	  --env-file apps/web/.env \
+	  -e API_URL=http://host.docker.internal:8080 \
+	  job-tracker-web:$(TAG)
 
 run-landing:
 	docker run --rm -p 3001:3000 job-tracker-landing:$(TAG)

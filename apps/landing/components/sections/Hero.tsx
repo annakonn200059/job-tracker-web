@@ -1,4 +1,5 @@
 import { Button } from "@workspace/ui/components/button"
+import { REGISTER_URL } from "@/lib/urls"
 import { Container } from "../layout/Container"
 
 const kanbanColumns = [
@@ -87,8 +88,8 @@ export function Hero() {
 
             {/* CTAs */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Button size="lg">
-                Get Started Free
+              <Button asChild size="lg">
+                <a href={REGISTER_URL}>Get Started Free</a>
               </Button>
               {/* Dark border on light bg — hover is clearly visible, no blend-in */}
               <Button

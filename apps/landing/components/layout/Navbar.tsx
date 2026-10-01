@@ -5,9 +5,18 @@ import Link from "next/link"
 import { Button } from "@workspace/ui/components/button"
 import { Container } from "./Container"
 import { Logo } from "./Logo"
+import { APP_URL, LOGIN_URL, ME_URL, REGISTER_URL } from "@/lib/urls"
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const [signedIn, setSignedIn] = useState(false)
+
+  // Only decides which button to show. The landing never redirects on 401.
+  useEffect(() => {
+    fetch(ME_URL, { credentials: "include" })
+      .then((res) => setSignedIn(res.ok))
+      .catch(() => setSignedIn(false))
+  }, [])
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 10)
@@ -49,12 +58,25 @@ export function Navbar() {
 
           {/* CTA */}
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
-              Login
-            </Button>
-            <Button size="sm" variant="default">
-              Get Started
-            </Button>
+            {signedIn ? (
+              <Button asChild size="sm">
+                <a href={APP_URL}>Open app</a>
+              </Button>
+            ) : (
+              <>
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="hidden sm:inline-flex"
+                >
+                  <a href={LOGIN_URL}>Log in</a>
+                </Button>
+                <Button asChild size="sm">
+                  <a href={REGISTER_URL}>Get Started</a>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </Container>

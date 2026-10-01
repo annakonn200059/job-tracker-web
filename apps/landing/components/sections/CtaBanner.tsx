@@ -1,5 +1,6 @@
 import { Button } from "@workspace/ui/components/button"
 import { Container } from "../layout/Container"
+import { REGISTER_URL } from "@/lib/urls"
 
 export function CtaBanner() {
   return (
@@ -19,10 +20,11 @@ export function CtaBanner() {
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button
+                asChild
                 size="lg"
                 className="bg-card text-primary hover:bg-primary-subtle shadow-lg"
               >
-                Get Started Free
+                <a href={REGISTER_URL}>Get Started Free</a>
               </Button>
               <Button
                 size="lg"
