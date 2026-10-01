@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 import { vacanciesApi } from "@/api/vacancies"
 import { QUERY_KEYS } from "@/lib/query-keys"
 import type { VacancyBody, VacancyFilters } from "@/types/vacancy"
@@ -9,6 +14,8 @@ export function useVacancies(filters?: VacancyFilters) {
   return useQuery({
     queryKey: vacancies.list(filters),
     queryFn: () => vacanciesApi.list(filters),
+    // Keep showing the old results while new filters load
+    placeholderData: keepPreviousData,
   })
 }
 
