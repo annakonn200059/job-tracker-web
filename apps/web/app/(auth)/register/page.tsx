@@ -4,12 +4,11 @@ import { useState } from "react"
 import Link from "next/link"
 import { Alert } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
-import { authApi } from "@/api/auth"
 import { ApiError } from "@/api/client"
 import { AuthCard } from "@/components/auth/auth-card"
-import { useAuth } from "@/components/auth/auth-provider"
 import { Field } from "@/components/auth/field"
 import { AUTH_MESSAGES, toErrorMessage } from "@/components/auth/messages"
+import { useRegister } from "@/hooks/use-auth"
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MIN_PASSWORD_LENGTH = 8
@@ -60,10 +59,11 @@ function toServerErrors(error: unknown): Errors {
 }
 
 export default function RegisterPage() {
-  const { setUser } = useAuth()
+  const register = useRegister()
   const [form, setForm] = useState(EMPTY_FORM)
-  const [errors, setErrors] = useState<Errors>({})
-  const [pending, setPending] = useState(false)
+  const [clientErrors, setClientErrors] = useState<Errors>({})
+
+  const errors = register.error ? toServerErrors(register.error) : clientErrors
 
   const fieldProps = (key: keyof Form) => ({
     id: key,
@@ -73,26 +73,19 @@ export default function RegisterPage() {
       setForm({ ...form, [key]: e.target.value }),
   })
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const clientErrors = validate(form)
-    setErrors(clientErrors)
-    if (Object.keys(clientErrors).length > 0) return
+    register.reset()
+    const newErrors = validate(form)
+    setClientErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
 
     const name = form.name.trim()
-    setPending(true)
-    try {
-      const res = await authApi.register({
-        email: form.email.trim(),
-        password: form.password,
-        ...(name && { display_name: name }),
-      })
-      setUser(res.user) // GuestGuard then sends the user into the app
-    } catch (err) {
-      setErrors(toServerErrors(err))
-    } finally {
-      setPending(false)
-    }
+    register.mutate({
+      email: form.email.trim(),
+      password: form.password,
+      ...(name && { display_name: name }),
+    })
   }
 
   return (
@@ -132,8 +125,8 @@ export default function RegisterPage() {
           autoComplete="new-password"
           {...fieldProps("confirm")}
         />
-        <Button type="submit" disabled={pending}>
-          {pending ? "Creating account..." : "Create account"}
+        <Button type="submit" disabled={register.isPending}>
+          {register.isPending ? "Creating account..." : "Create account"}
         </Button>
       </form>
     </AuthCard>

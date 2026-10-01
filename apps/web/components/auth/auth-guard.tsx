@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { Button } from "@workspace/ui/components/button"
 import { FullPageSpinner } from "@/components/full-page-spinner"
 import { redirectToLanding } from "@/lib/redirect"
-import { useAuth } from "./auth-provider"
+import { useAuth } from "@/hooks/use-auth"
 
 /** Shows children only to signed-in users; everyone else goes to the landing. */
 export function AuthGuard({ children }: { children: React.ReactNode }) {

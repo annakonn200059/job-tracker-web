@@ -4,32 +4,26 @@ import { useState } from "react"
 import Link from "next/link"
 import { Alert } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
-import { authApi } from "@/api/auth"
 import { AuthCard } from "@/components/auth/auth-card"
-import { useAuth } from "@/components/auth/auth-provider"
 import { Field } from "@/components/auth/field"
 import { AUTH_MESSAGES, toErrorMessage } from "@/components/auth/messages"
+import { useLogin } from "@/hooks/use-auth"
 
 export default function LoginPage() {
-  const { setUser } = useAuth()
+  const login = useLogin()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState<string>()
-  const [pending, setPending] = useState(false)
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const error =
+    login.error &&
+    toErrorMessage(login.error, { 401: AUTH_MESSAGES.wrongCredentials })
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setPending(true)
-    setError(undefined)
-    try {
-      const res = await authApi.login({ email: email.trim(), password })
-      setUser(res.user) // GuestGuard then sends the user into the app
-    } catch (err) {
-      setPassword("")
-      setError(toErrorMessage(err, { 401: AUTH_MESSAGES.wrongCredentials }))
-    } finally {
-      setPending(false)
-    }
+    login.mutate(
+      { email: email.trim(), password },
+      { onError: () => setPassword("") }
+    )
   }
 
   return (
@@ -64,8 +58,8 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <Button type="submit" disabled={pending}>
-          {pending ? "Logging in..." : "Log in"}
+        <Button type="submit" disabled={login.isPending}>
+          {login.isPending ? "Logging in..." : "Log in"}
         </Button>
       </form>
     </AuthCard>

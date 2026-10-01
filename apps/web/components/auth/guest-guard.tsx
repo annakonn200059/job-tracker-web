@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { FullPageSpinner } from "@/components/full-page-spinner"
 import { takeReturnTo } from "@/lib/redirect"
-import { useAuth } from "./auth-provider"
+import { useAuth } from "@/hooks/use-auth"
 
 /**
  * For /login and /register. Signed-in users are sent into the app, back to

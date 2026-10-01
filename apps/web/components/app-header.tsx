@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@workspace/ui/components/button"
-import { useAuth } from "@/components/auth/auth-provider"
+import { useAuth } from "@/hooks/use-auth"
 
 export function AppHeader() {
   const auth = useAuth()
