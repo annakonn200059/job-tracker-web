@@ -1,31 +1,9 @@
-/** e.g. "2026-09-29T10:00:00Z" */
-export type DateTime = string
+import type { components } from "@/api/schema.gen"
 
-/** e.g. "2026-09-29" */
-export type DateOnly = string
+/** Types generated from the backend's OpenAPI spec (`npm run gen:api`) */
+export type Schemas = components["schemas"]
 
-export interface Paginated<T> {
-  items: T[]
-  total: number
-}
+export type ApiErrorBody = Schemas["Error"]
 
-export interface ListParams {
-  limit?: number
-  offset?: number
-  desc?: boolean
-  q?: string
-}
-
-export type ApiErrorCode =
-  | "validation_failed"
-  | "unauthorized"
-  | "forbidden"
-  | "not_found"
-  | "conflict"
-  | "internal_error"
-  | "network_error"
-
-export interface ApiErrorBody {
-  error: ApiErrorCode
-  message: string
-}
+/** Error codes from the API, plus "network_error" when the request never reached it */
+export type ApiErrorCode = ApiErrorBody["error"] | "network_error"

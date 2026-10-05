@@ -2,12 +2,13 @@ import type {
   Application,
   ApplicationBoard,
   ApplicationFilters,
+  ApplicationList,
   ApplicationStage,
+  ChangeStageRequest,
   CreateApplicationBody,
   MoveApplicationBody,
-  UpdateApplicationBody,
+  UpdateApplicationRequest,
 } from "@/types/application"
-import type { Paginated } from "@/types/common"
 import { request } from "./client"
 import { ENDPOINTS } from "./endpoints"
 
@@ -15,7 +16,7 @@ const { applications } = ENDPOINTS
 
 export const applicationsApi = {
   list: (filters?: ApplicationFilters) =>
-    request<Paginated<Application>>(applications.root, { query: filters }),
+    request<ApplicationList>(applications.root, { query: filters }),
 
   board: () => request<ApplicationBoard>(applications.board),
 
@@ -27,7 +28,7 @@ export const applicationsApi = {
       body,
     }),
 
-  update: (id: number, body: UpdateApplicationBody) =>
+  update: (id: number, body: UpdateApplicationRequest) =>
     request<Application>(applications.byId(id), {
       method: "PATCH",
       body,
@@ -36,7 +37,7 @@ export const applicationsApi = {
   changeStage: (id: number, to: ApplicationStage) =>
     request<Application>(applications.stage(id), {
       method: "PATCH",
-      body: { to },
+      body: { to } satisfies ChangeStageRequest,
     }),
 
   move: (id: number, body: MoveApplicationBody) =>

@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query"
 import { vacanciesApi } from "@/api/vacancies"
 import { QUERY_KEYS } from "@/lib/query-keys"
-import type { VacancyBody, VacancyFilters } from "@/types/vacancy"
+import type { VacancyFilters, VacancyPatch } from "@/types/vacancy"
 
 const { vacancies } = QUERY_KEYS
 
@@ -41,10 +41,7 @@ export function useCreateVacancy() {
 
 export function useUpdateVacancy() {
   return useMutation({
-    mutationFn: ({
-      id,
-      ...body
-    }: { id: number } & Omit<VacancyBody, "company_name">) =>
+    mutationFn: ({ id, ...body }: { id: number } & VacancyPatch) =>
       vacanciesApi.update(id, body),
     onSuccess: useRefetchVacancies(),
   })

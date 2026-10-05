@@ -1,5 +1,9 @@
-import type { DateTime, ListParams } from "./common"
+import type { operations } from "@/api/schema.gen"
+import type { Schemas } from "./common"
 
+export type ApplicationStage = Schemas["Stage"]
+
+/** Board column order. A new backend stage shows up as an error in lib/labels.ts */
 export const APPLICATION_STAGES = [
   "saved",
   "applied",
@@ -9,48 +13,23 @@ export const APPLICATION_STAGES = [
   "offer",
   "rejected",
   "withdrawn",
-] as const
+] as const satisfies readonly ApplicationStage[]
 
-export type ApplicationStage = (typeof APPLICATION_STAGES)[number]
-
-export interface Application {
-  id: number
-  user_id: number
-  vacancy_id: number
-  stage: ApplicationStage
-  board_order: number
-  priority: number
-  applied_at?: DateTime
-  closed_at?: DateTime
-  notes?: string
-  created_at: DateTime
-  updated_at: DateTime
-}
+export type Application = Schemas["Application"]
+export type ApplicationList = Schemas["ApplicationList"]
 
 /** Kanban board: applications grouped by stage */
-export type ApplicationBoard = Partial<Record<ApplicationStage, Application[]>>
+export type ApplicationBoard = Schemas["Board"]
 
-export interface ApplicationFilters extends ListParams {
-  company_id?: number
-  min_priority?: number
-  vacancy_id?: number[]
-  tag_id?: number[]
-  stage?: ApplicationStage[]
-  sort?: "board" | "created_at" | "updated_at" | "priority"
-}
+export type ApplicationFilters = NonNullable<
+  operations["listApplications"]["parameters"]["query"]
+>
 
-export interface CreateApplicationBody {
-  vacancy_id: number
-  stage?: ApplicationStage
-}
+export type CreateApplicationBody = Schemas["ApplyRequest"]
 
-export interface UpdateApplicationBody {
-  priority: number
-  notes?: string
-}
+/** Partial update: omitted = unchanged, `notes: null` = cleared */
+export type UpdateApplicationRequest = Schemas["UpdateApplicationRequest"]
 
-export interface MoveApplicationBody {
-  stage: ApplicationStage
-  after_id?: number
-  before_id?: number
-}
+export type ChangeStageRequest = Schemas["ChangeStageRequest"]
+
+export type MoveApplicationBody = Schemas["MoveRequest"]

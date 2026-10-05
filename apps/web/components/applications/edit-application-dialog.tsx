@@ -41,7 +41,8 @@ export function EditApplicationDialog({
       {
         id: application.id,
         priority: Number(data.get("priority")),
-        notes: String(data.get("notes")).trim(),
+        // Empty textarea clears the notes (null), instead of saving ""
+        notes: String(data.get("notes")).trim() || null,
       },
       { onSuccess: close }
     )

@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "gen:api": "openapi-typescript \"${OPENAPI_SPEC:-https://raw.githubusercontent.com/annakonn200059/job-tracker-api/$(cat api/openapi-ref)/api/openapi.yaml}\" --output api/schema.gen.ts"
   },
   "dependencies": {
     "@hugeicons/core-free-icons": "^4.1.1",
@@ -31,6 +32,7 @@
     "@workspace/eslint-config": "*",
     "@workspace/typescript-config": "*",
     "eslint": "^9.39.2",
+    "openapi-typescript": "^7.13.0",
     "typescript": "^5.9.3"
   }
 }

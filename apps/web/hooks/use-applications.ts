@@ -5,7 +5,7 @@ import type {
   ApplicationFilters,
   ApplicationStage,
   MoveApplicationBody,
-  UpdateApplicationBody,
+  UpdateApplicationRequest,
 } from "@/types/application"
 
 const { applications } = QUERY_KEYS
@@ -46,7 +46,7 @@ export function useCreateApplication() {
 
 export function useUpdateApplication() {
   return useMutation({
-    mutationFn: ({ id, ...body }: { id: number } & UpdateApplicationBody) =>
+    mutationFn: ({ id, ...body }: { id: number } & UpdateApplicationRequest) =>
       applicationsApi.update(id, body),
     onSuccess: useRefetchApplications(),
   })

@@ -1,30 +1,10 @@
-import type { DateTime } from "./common"
+import type { Schemas } from "./common"
 
-export interface User {
-  id: number
-  email: string
-  display_name: string | null
-  locale: string
-  email_verified: boolean
-  has_password: boolean
-}
+export type User = Schemas["User"]
 
-export interface SessionResponse {
-  user: User
-  /** Not used in the browser: the session cookie is set automatically */
-  token: string
-  expires_at: DateTime
-}
+/** `token` is not used in the browser: the session cookie is set automatically */
+export type SessionResponse = Schemas["Session"]
 
-export interface LoginBody {
-  email: string
-  password: string
-}
-
-export interface RegisterBody extends LoginBody {
-  display_name?: string
-}
-
-export interface GoogleLoginBody {
-  id_token: string
-}
+export type LoginBody = Schemas["LoginRequest"]
+export type RegisterBody = Schemas["RegisterRequest"]
+export type GoogleLoginBody = Schemas["GoogleLoginRequest"]

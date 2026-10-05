@@ -14,58 +14,72 @@ import type {
   EmploymentType,
   SalaryPeriod,
   Vacancy,
-  VacancyBody,
+  VacancyCreate,
+  VacancyPatch,
   WorkMode,
 } from "@/types/vacancy"
 
-interface VacancyFormProps {
-  /** Pass to edit; leave out to create */
-  vacancy?: Vacancy
+interface CommonProps {
   submitLabel: string
   pending: boolean
   error: Error | null
-  onSubmit: (body: VacancyBody) => void
   onCancel?: () => void
 }
 
-/** Empty fields are left out of the body. */
-function toBody(data: FormData): VacancyBody {
-  const text = (key: keyof VacancyBody) =>
-    String(data.get(key) ?? "").trim() || undefined
-  const number = (key: keyof VacancyBody) => {
-    const value = text(key)
-    return value === undefined ? undefined : Number(value)
+type VacancyFormProps = CommonProps &
+  (
+    | { vacancy?: undefined; onSubmit: (body: VacancyCreate) => void }
+    | { vacancy: Vacancy; onSubmit: (body: VacancyPatch) => void }
+  )
+
+const text = (data: FormData, key: string) =>
+  String(data.get(key) ?? "").trim() || null
+
+/**
+ * Every editable field; empty inputs become `null`. Sent as-is on edit, so
+ * clearing an input clears the field (PATCH: omitted = kept, null = cleared).
+ */
+function toPatch(data: FormData) {
+  const number = (key: string) => {
+    const value = text(data, key)
+    return value === null ? null : Number(value)
   }
 
   return {
-    title: text("title") ?? "",
-    company_name: text("company_name"),
-    url: text("url"),
-    description: text("description"),
-    location: text("location"),
-    work_mode: text("work_mode") as WorkMode | undefined,
-    employment_type: text("employment_type") as EmploymentType | undefined,
-    language: text("language"),
+    title: text(data, "title") ?? "",
+    url: text(data, "url"),
+    description: text(data, "description"),
+    location: text(data, "location"),
+    work_mode: text(data, "work_mode") as WorkMode | null,
+    employment_type: text(data, "employment_type") as EmploymentType | null,
+    language: text(data, "language"),
     salary_min: number("salary_min"),
     salary_max: number("salary_max"),
-    salary_currency: text("salary_currency"),
-    salary_period: text("salary_period") as SalaryPeriod | undefined,
-    source: text("source"),
-    posted_at: text("posted_at"),
-  }
+    salary_currency: text(data, "salary_currency"),
+    salary_period: text(data, "salary_period") as SalaryPeriod | null,
+    source: text(data, "source"),
+    posted_at: text(data, "posted_at"),
+  } satisfies VacancyPatch
 }
 
-export function VacancyForm({
-  vacancy,
-  submitLabel,
-  pending,
-  error,
-  onSubmit,
-  onCancel,
-}: VacancyFormProps) {
+/** Same fields as edit, but empty ones are left out. */
+function toCreate(data: FormData): VacancyCreate {
+  const fields = { ...toPatch(data), company_name: text(data, "company_name") }
+  const body: Partial<typeof fields> = {}
+  for (const key of Object.keys(fields) as (keyof typeof fields)[]) {
+    if (fields[key] !== null) Object.assign(body, { [key]: fields[key] })
+  }
+  return { ...body, title: fields.title }
+}
+
+export function VacancyForm(props: VacancyFormProps) {
+  const { vacancy, submitLabel, pending, error, onCancel } = props
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    onSubmit(toBody(new FormData(event.currentTarget)))
+    const data = new FormData(event.currentTarget)
+    if (props.vacancy) props.onSubmit(toPatch(data))
+    else props.onSubmit(toCreate(data))
   }
 
   return (

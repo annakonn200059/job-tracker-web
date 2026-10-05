@@ -78,8 +78,7 @@ export default function VacancyPage() {
           error={update.error}
           onSubmit={(body) =>
             update.mutate(
-              // Full replace: keep the company that's already linked
-              { ...body, id, company_id: v.company_id },
+              { ...body, id },
               { onSuccess: () => setEditing(false) }
             )
           }
