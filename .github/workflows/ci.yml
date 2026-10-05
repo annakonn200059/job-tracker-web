@@ -15,3 +15,21 @@ jobs:
     uses: annakonn200059/job-tracker-ci/.github/workflows/node.yml@main
     with:
       node-version: "24"
+  api-types:
+    name: API types up to date
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run gen:api --workspace=apps/web
+
+      - run: git diff --exit-code apps/web/api/schema.gen.ts

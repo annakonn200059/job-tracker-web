@@ -1,53 +1,40 @@
-import type { DateOnly, DateTime, ListParams } from "./common"
+import type { operations } from "@/api/schema.gen"
+import type { Schemas } from "./common"
 
-export const WORK_MODES = ["onsite", "hybrid", "remote"] as const
-export type WorkMode = (typeof WORK_MODES)[number]
+export type WorkMode = Schemas["WorkMode"]
+export type EmploymentType = Schemas["EmploymentType"]
+export type SalaryPeriod = Schemas["SalaryPeriod"]
+
+// A new backend value shows up as an error in lib/labels.ts
+export const WORK_MODES = [
+  "onsite",
+  "hybrid",
+  "remote",
+] as const satisfies readonly WorkMode[]
 
 export const EMPLOYMENT_TYPES = [
   "full_time",
   "part_time",
   "contract",
   "internship",
-] as const
-export type EmploymentType = (typeof EMPLOYMENT_TYPES)[number]
+] as const satisfies readonly EmploymentType[]
 
-export const SALARY_PERIODS = ["hour", "day", "month", "year"] as const
-export type SalaryPeriod = (typeof SALARY_PERIODS)[number]
+export const SALARY_PERIODS = [
+  "hour",
+  "day",
+  "month",
+  "year",
+] as const satisfies readonly SalaryPeriod[]
 
-/** Body for creating or updating a vacancy */
-export interface VacancyBody {
-  company_id?: number
-  /** Only used on create: finds or creates the company by name */
-  company_name?: string
-  title: string
-  url?: string
-  description?: string
-  location?: string
-  work_mode?: WorkMode
-  employment_type?: EmploymentType
-  language?: string
-  salary_min?: number
-  salary_max?: number
-  salary_currency?: string
-  salary_period?: SalaryPeriod
-  source?: string
-  posted_at?: DateOnly
-}
+export type Vacancy = Schemas["Vacancy"]
+export type VacancyList = Schemas["VacancyList"]
 
-export interface Vacancy extends Omit<VacancyBody, "company_name"> {
-  id: number
-  user_id: number
-  created_at: DateTime
-  updated_at: DateTime
-}
+/** Body for POST /vacancies */
+export type VacancyCreate = Schemas["VacancyCreate"]
 
-export interface VacancyFilters extends ListParams {
-  company_id?: number
-  salary_from?: number
-  has_application?: boolean
-  work_mode?: WorkMode[]
-  employment_type?: EmploymentType[]
-  language?: string[]
-  source?: string[]
-  sort?: "created_at" | "updated_at" | "posted_at" | "title" | "salary"
-}
+/** Body for PATCH /vacancies/{id}: omitted = unchanged, `null` = cleared */
+export type VacancyPatch = Schemas["VacancyPatch"]
+
+export type VacancyFilters = NonNullable<
+  operations["listVacancies"]["parameters"]["query"]
+>

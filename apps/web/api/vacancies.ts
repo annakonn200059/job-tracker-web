@@ -1,5 +1,10 @@
-import type { Paginated } from "@/types/common"
-import type { Vacancy, VacancyBody, VacancyFilters } from "@/types/vacancy"
+import type {
+  Vacancy,
+  VacancyCreate,
+  VacancyFilters,
+  VacancyList,
+  VacancyPatch,
+} from "@/types/vacancy"
 import { request } from "./client"
 import { ENDPOINTS } from "./endpoints"
 
@@ -7,15 +12,15 @@ const { vacancies } = ENDPOINTS
 
 export const vacanciesApi = {
   list: (filters?: VacancyFilters) =>
-    request<Paginated<Vacancy>>(vacancies.root, { query: filters }),
+    request<VacancyList>(vacancies.root, { query: filters }),
 
   get: (id: number) => request<Vacancy>(vacancies.byId(id)),
 
-  create: (body: VacancyBody) =>
+  create: (body: VacancyCreate) =>
     request<Vacancy>(vacancies.root, { method: "POST", body }),
 
-  /** Replaces the whole vacancy: fields you leave out are cleared */
-  update: (id: number, body: Omit<VacancyBody, "company_name">) =>
+  /** Partial update: omitted fields are kept, `null` clears a field */
+  update: (id: number, body: VacancyPatch) =>
     request<Vacancy>(vacancies.byId(id), { method: "PATCH", body }),
 
   delete: (id: number) =>

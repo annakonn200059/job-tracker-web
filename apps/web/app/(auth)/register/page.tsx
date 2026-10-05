@@ -6,7 +6,7 @@ import { Alert } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import { ApiError } from "@/api/client"
 import { AuthCard } from "@/components/auth/auth-card"
-import { Field } from "@/components/auth/field"
+import { Field } from "@/components/form/field"
 import { AUTH_MESSAGES, toErrorMessage } from "@/components/auth/messages"
 import { useRegister } from "@/hooks/use-auth"
 
