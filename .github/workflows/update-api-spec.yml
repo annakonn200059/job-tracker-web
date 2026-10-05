@@ -1,0 +1,105 @@
+name: Update API spec
+
+# Checks the API repo's main branch weekly. If the OpenAPI spec changed, opens
+# (or updates) a PR that bumps apps/web/api/openapi-ref and regenerates
+# apps/web/api/schema.gen.ts. Nothing reaches main without review.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch: # "Run workflow" button in the Actions tab
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-api-spec
+
+env:
+  API_REPO: annakonn200059/job-tracker-api
+  REF_FILE: apps/web/api/openapi-ref
+  SCHEMA_FILE: apps/web/api/schema.gen.ts
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Regenerate types from the API's latest main
+        id: spec
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          old=$(cat "$REF_FILE")
+          new=$(gh api "repos/$API_REPO/commits/main" --jq .sha)
+          echo "old=$old" >> "$GITHUB_OUTPUT"
+          echo "new=$new" >> "$GITHUB_OUTPUT"
+
+          echo "$new" > "$REF_FILE"
+          npm run gen:api --workspace=apps/web
+
+          # New backend commits that don't touch the spec: keep the old pin.
+          if git diff --quiet "$SCHEMA_FILE"; then
+            git checkout -- "$REF_FILE"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Shown in the PR so you know up front what needs fixing.
+      - name: Typecheck against the new types
+        if: steps.spec.outputs.changed == 'true'
+        id: typecheck
+        continue-on-error: true
+        shell: bash
+        run: npm run typecheck --workspace=apps/web 2>&1 | tee typecheck.log
+
+      - name: Write PR description
+        if: steps.spec.outputs.changed == 'true'
+        env:
+          OLD: ${{ steps.spec.outputs.old }}
+          NEW: ${{ steps.spec.outputs.new }}
+          TYPECHECK: ${{ steps.typecheck.outcome }}
+        run: |
+          {
+            echo "The OpenAPI spec changed in \`$API_REPO\`."
+            echo
+            echo "[Backend changes](https://github.com/$API_REPO/compare/$OLD...$NEW)"
+            echo
+            if [ "$TYPECHECK" = "success" ]; then
+              echo "✅ Typecheck passes with the new types."
+            else
+              echo "❌ Typecheck fails. Fix these on this branch before merging:"
+              echo
+              echo '```'
+              grep "error TS" typecheck.log | head -50
+              echo '```'
+            fi
+            echo
+            echo "**Merge only after this API version is deployed.**"
+          } > pr-body.md
+
+      - name: Open or update PR
+        if: steps.spec.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          # PRs opened with the default token don't trigger CI. Add a
+          # fine-grained token as the API_SPEC_BOT_TOKEN secret to fix that.
+          token: ${{ secrets.API_SPEC_BOT_TOKEN || github.token }}
+          branch: bot/update-api-spec
+          add-paths: |
+            ${{ env.REF_FILE }}
+            ${{ env.SCHEMA_FILE }}
+          commit-message: "chore(api): update OpenAPI spec to ${{ steps.spec.outputs.new }}"
+          title: "chore(api): update OpenAPI spec"
+          body-path: pr-body.md
+          delete-branch: true
