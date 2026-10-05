@@ -5,7 +5,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthGuard>
       <AppHeader />
-      {children}
+      <main className="p-6">{children}</main>
     </AuthGuard>
   )
 }
