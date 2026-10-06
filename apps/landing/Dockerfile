@@ -35,7 +35,9 @@ ENV NODE_ENV=production \
 
 RUN apk add --no-cache tini && \
     addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 --ingroup nodejs nextjs
+    adduser --system --uid 1001 --ingroup nodejs nextjs && \
+    rm -rf /usr/local/lib/node_modules /usr/local/include \
+           /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 
 COPY --from=builder --chown=nextjs:nodejs /app/apps/landing/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/landing/.next/static ./apps/landing/.next/static

@@ -8,7 +8,8 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel a run on main: it may be pushing images
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   ci:
@@ -33,3 +34,16 @@ jobs:
       - run: npm run gen:api --workspace=apps/web
 
       - run: git diff --exit-code apps/web/api/schema.gen.ts
+  image:
+    needs: [ci, api-types]
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [web, landing]
+    uses: annakonn200059/job-tracker-ci/.github/workflows/image.yml@main
+    with:
+      image-name: job-tracker-${{ matrix.app }}
+      dockerfile: apps/${{ matrix.app }}/Dockerfile
