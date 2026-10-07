@@ -13,8 +13,9 @@ concurrency:
 
 jobs:
   ci:
-    uses: annakonn200059/job-tracker-ci/.github/workflows/node.yml@main
+    uses: annakonn200059/job-tracker-ci/.github/workflows/node.yml@v1.0.0
     with:
+      # renovate: datasource=node-version depName=node
       node-version: "24"
   api-types:
     name: API types up to date
@@ -44,7 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         app: [web, landing]
-    uses: annakonn200059/job-tracker-ci/.github/workflows/image.yml@main
+    uses: annakonn200059/job-tracker-ci/.github/workflows/image.yml@v1.0.0
     with:
       image-name: job-tracker-${{ matrix.app }}
       dockerfile: apps/${{ matrix.app }}/Dockerfile
