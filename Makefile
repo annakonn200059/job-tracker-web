@@ -1,9 +1,10 @@
 SHA   := $(shell git rev-parse --short HEAD)
 # Checks both unstaged and staged changes.
 DIRTY := $(shell git diff --quiet && git diff --cached --quiet || echo "-dirty")
+CLUSTER ?= jobtracker
 TAG   := $(SHA)$(DIRTY)
 
-.PHONY: tag images image-web image-landing run-web run-landing sizes
+.PHONY: tag images image-web image-landing import-web run-web run-landing sizes
 
 tag:
 	@echo $(TAG)
@@ -16,10 +17,13 @@ image-landing:
 
 images: image-web image-landing
 
+import-web: image-web
+	k3d image import job-tracker-web:$(TAG) -c $(CLUSTER)
+
 run-web:
-		docker run --rm -p 3000:3000 \
+	docker run --rm -p 3000:3000 \
 	  --env-file apps/web/.env \
-	  -e API_URL=http://host.docker.internal:8080 \
+	  -e API_INTERNAL_URL=http://host.docker.internal:8080 \
 	  job-tracker-web:$(TAG)
 
 run-landing:
