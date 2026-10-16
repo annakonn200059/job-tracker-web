@@ -1,4 +1,3 @@
-import { API_URL } from "@/lib/config"
 import { redirectToLanding } from "@/lib/redirect"
 import type { ApiErrorBody, ApiErrorCode } from "@/types/common"
 import { AUTH } from "./endpoints"
@@ -23,7 +22,7 @@ export async function request<T>(
   path: string,
   { method = "GET", body, query }: RequestOptions = {}
 ): Promise<T> {
-  const url = new URL(path, API_URL)
+  const url = new URL(`/api${path}`, window.location.origin)
 
   // Arrays are sent as comma-separated values: ?stage=saved,applied
   for (const [key, value] of Object.entries(query ?? {})) {
