@@ -7,6 +7,9 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - API_INTERNAL_URL=http://host.docker.internal:8080
+      - LANDING_URL=http://localhost:3001
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
 
   landing:
     build:

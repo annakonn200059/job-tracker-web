@@ -1,2 +1,16 @@
-export const LANDING_URL = process.env.NEXT_PUBLIC_LANDING_URL ?? "/login"
-export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ""
+// Deliberately not NEXT_PUBLIC_*: those are inlined at build time, so one
+// image could never serve two environments.
+export interface PublicConfig {
+  googleClientId: string
+  landingUrl: string
+}
+
+let current: PublicConfig = { googleClientId: "", landingUrl: "/login" }
+
+export function setPublicConfig(config: PublicConfig) {
+  current = config
+}
+
+export function publicConfig(): PublicConfig {
+  return current
+}

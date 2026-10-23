@@ -2,6 +2,7 @@ import { Geist_Mono, Nunito_Sans } from "next/font/google"
 import "./globals.css"
 import { Providers } from "@/components/providers"
 import { cn } from "@workspace/ui/lib/utils"
+import { connection } from "next/server"
 
 const geistMonoHeading = Geist_Mono({
   subsets: ["latin"],
@@ -15,11 +16,16 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
+  await connection()
+
+  const config = {
+    googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
+    landingUrl: process.env.LANDING_URL ?? "/login",
+  }
+
   return (
     <html
       lang="en"
@@ -33,7 +39,7 @@ export default function RootLayout({
       )}
     >
       <body>
-        <Providers>{children}</Providers>
+        <Providers config={config}>{children}</Providers>
       </body>
     </html>
   )
