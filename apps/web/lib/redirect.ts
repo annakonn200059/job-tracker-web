@@ -1,4 +1,4 @@
-import { LANDING_URL } from "./config"
+import { publicConfig } from "./config"
 
 const RETURN_TO_KEY = "auth:returnTo"
 
@@ -15,7 +15,7 @@ export function redirectToLanding({ saveReturnTo = true } = {}) {
       window.location.pathname + window.location.search
     )
   }
-  window.location.assign(LANDING_URL)
+  window.location.assign(publicConfig().landingUrl)
 }
 
 /** Reads and removes the saved page. Only same-site paths are allowed. */

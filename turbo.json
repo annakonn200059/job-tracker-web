@@ -1,7 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-  "globalPassThroughEnv": ["API_INTERNAL_URL"],
+  "globalPassThroughEnv": [
+    "API_INTERNAL_URL",
+    "LANDING_URL",
+    "GOOGLE_CLIENT_ID"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

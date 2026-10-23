@@ -24,6 +24,7 @@ run-web:
 	docker run --rm -p 3000:3000 \
 	  --env-file apps/web/.env \
 	  -e API_INTERNAL_URL=http://host.docker.internal:8080 \
+	  -e LANDING_URL=http://localhost:3001 \
 	  job-tracker-web:$(TAG)
 
 run-landing:
