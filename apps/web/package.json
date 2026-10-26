@@ -33,6 +33,6 @@
     "@workspace/typescript-config": "*",
     "eslint": "^9.39.2",
     "openapi-typescript": "^7.13.0",
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.0"
   }
 }
